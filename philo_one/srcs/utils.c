@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 01:10:01 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/11 23:39:06 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/13 17:34:21 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,19 +42,29 @@ int		ft_atoi(const char *nptr)
 void	print_log(char *output, t_philo *philo)
 {
 	pthread_mutex_lock(philo->output_mutex);
-	print_timestamp(philo->exec_time);
+	printf("[%ld] ", get_timestamp(philo->exec_tm));
 	printf(output, philo->nb_philo);
 	pthread_mutex_unlock(philo->output_mutex);
 }
 
-void	print_timestamp(struct timeval exec_timestamp)
+long	get_timestamp(long reference_tm)
 {
-	struct timeval		timestamp;
-	unsigned long		offset;
+	struct timeval	timestamp;
 
 	gettimeofday(&timestamp, NULL);
-	offset = timestamp.tv_sec * 1000000 - exec_timestamp.tv_sec * 1000000;
-	offset += timestamp.tv_usec - exec_timestamp.tv_usec;
-	offset /= 1000;
-	printf("[%ld] ", offset);
+	return (timestamp.tv_sec * 1000 + timestamp.tv_usec / 1000 - reference_tm);
+}
+
+void	ft_msleep(int time_to_sleep)
+{
+	long	current_tm;
+	long	reference_tm;
+
+	reference_tm = get_timestamp(0);
+	current_tm = reference_tm;
+	while (time_to_sleep > current_tm - reference_tm)
+	{
+		usleep(100);
+		current_tm = get_timestamp(0);
+	}
 }

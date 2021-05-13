@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 18:36:12 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/12 01:59:07 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/13 17:36:18 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	*philo_routine(void *info)
 	t_philo			*philo;
 
 	philo = (t_philo*)info;
-	usleep(philo->time_to_eat * 1000 * (philo->nb_philo % 2) / 2);
+	ft_msleep(philo->time_to_eat * (philo->nb_philo % 2) / 2);
 	while (1) // routine loop
 	{
 		// eat
@@ -44,7 +44,7 @@ void	eat(t_philo *philo)
 	//pthread_mutex_lock(philo->death_mutex);
 
 	// update meal structure
-	gettimeofday(&philo->meals->last_meal, NULL);
+	philo->meals->last_meal = get_timestamp(0);
 	philo->meals->nb_meals++;
 
 	// unlock mutex du die
@@ -52,7 +52,7 @@ void	eat(t_philo *philo)
 
 	// eat
 	print_log("%d is eating\n", philo);
-	usleep(philo->time_to_eat * 1000);
+	ft_msleep(philo->time_to_eat);
 
 	// unlock forks
 	pthread_mutex_unlock(philo->forks[0]);
@@ -62,7 +62,7 @@ void	eat(t_philo *philo)
 void	sleeping(t_philo *philo)
 {
 	print_log("%d is sleeping\n", philo);
-	usleep(philo->time_to_sleep * 1000);
+	ft_msleep(philo->time_to_sleep);
 }
 
 void	think(t_philo *philo)

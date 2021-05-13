@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 17:42:37 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/12 01:28:27 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/13 17:28:38 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ t_info			*init_philo_info(int argc, char **argv)
 	info = (t_info*)malloc(sizeof(t_info));
 	if (!info)
 		return (NULL);
-	gettimeofday(&info->exec_time, NULL);
+	info->exec_tm = get_timestamp(0);
 	info->nb_philo = ft_atoi(argv[1]);
 	info->time_to_die = ft_atoi(argv[2]);
 	info->time_to_eat = ft_atoi(argv[3]);
@@ -36,7 +36,7 @@ t_info			*init_philo_info(int argc, char **argv)
 		return (NULL);*/
 	if (pthread_mutex_init(&info->output_mutex, NULL) != 0)
 		return (NULL);
-	info->meals = init_philos_meals(info->nb_philo, info->exec_time);
+	info->meals = init_philos_meals(info->nb_philo, info->exec_tm);
 	if (!info->meals)
 		return (NULL);
 	return (info);
@@ -63,7 +63,7 @@ pthread_mutex_t	*init_forks_mutexes(int size)
 	return (forks);
 }
 
-t_philo_meals	*init_philos_meals(int size, struct timeval exec_time)
+t_philo_meals	*init_philos_meals(int size, long exec_tm)
 {
 	t_philo_meals	*meals;
 	int				i;
@@ -74,7 +74,7 @@ t_philo_meals	*init_philos_meals(int size, struct timeval exec_time)
 	i = 0;
 	while (i < size)
 	{
-		meals[i].last_meal = exec_time;
+		meals[i].last_meal = exec_tm;
 		meals[i].nb_meals = 0;
 		i++;
 	}
@@ -125,6 +125,6 @@ t_philo			*init_philo(t_info *info, int i)
 	//new->death_mutex = &info->death_mutex[i];
 	new->output_mutex = &info->output_mutex;
 	new->meals = &info->meals[i];
-	new->exec_time = info->exec_time;
+	new->exec_tm = info->exec_tm;
 	return (new);
 }

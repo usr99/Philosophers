@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 16:36:24 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/12 02:00:30 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/13 17:40:25 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,15 +27,14 @@ int		main(int argc, char **argv)
 		return (-1);
 
 	while (check_meals(philo_info) == 0)
-		usleep(500);
+		ft_msleep(1);
 
 	return (0);
 }
 
 int		check_meals(t_info *info)
 {
-	struct timeval	tm;
-	unsigned long	last_meal;
+	long			last_meal;
 	int				least_times_eaten;
 	int				i;
 
@@ -44,13 +43,11 @@ int		check_meals(t_info *info)
 	while (i < info->nb_philo)
 	{
 		//pthread_mutex_lock(&info->death_mutex[i]);
-		gettimeofday(&tm, NULL);
-		last_meal = (tm.tv_sec - info->meals[i].last_meal.tv_sec) * 1000000;
-		last_meal += (tm.tv_usec - info->meals[i].last_meal.tv_usec);
-		last_meal /= 1000;
+		last_meal = get_timestamp(info->exec_tm);
 		if (last_meal > info->time_to_die)
 		{
 			print_log("%d died\n", info->philos[i]);
+			pthread_mutex_lock(&info->output_mutex);
 			return (-1);
 		}
 		//pthread_mutex_unlock(&info->death_mutex[i]);

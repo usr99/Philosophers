@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 17:16:27 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/12 01:18:21 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/13 17:34:28 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 
 typedef struct	s_philo_meals
 {
-	struct timeval	last_meal;
+	long			last_meal;
 	int				nb_meals;
 }				t_philo_meals;
 
@@ -43,7 +43,7 @@ typedef struct	s_philo
 	pthread_mutex_t	*death_mutex;
 	pthread_mutex_t	*output_mutex;
 	t_philo_meals	*meals;
-	struct timeval	exec_time;
+	long			exec_tm;
 }				t_philo;
 
 /*
@@ -57,7 +57,7 @@ typedef struct	s_info
 	unsigned int	time_to_sleep;
 	int				nb_must_eat;
 	int				nb_philo;
-	struct timeval	exec_time;
+	long			exec_tm;
 	t_philo			**philos;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	*death_mutex;
@@ -73,7 +73,7 @@ t_info			*init_philo_info(int argc, char **argv);
 pthread_mutex_t	*init_forks_mutexes(int size);
 pthread_t		*init_philos_threads(t_info *info);
 t_philo			*init_philo(t_info *info, int i);
-t_philo_meals	*init_philos_meals(int size, struct timeval exec_time);
+t_philo_meals	*init_philos_meals(int size, long exec_tm);
 
 /*
 **	SUPERVISOR FUNCTIONS
@@ -96,6 +96,7 @@ void			think(t_philo *philo);
 
 int				ft_atoi(const char *nptr);
 void			print_log(char *output, t_philo *philo);
-void			print_timestamp(struct timeval exec_timestamp);
+long			get_timestamp(long exec_tm);
+void			ft_msleep(int time);
 
 #endif

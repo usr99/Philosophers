@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 16:36:24 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/13 17:40:25 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/15 02:16:32 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ int		main(int argc, char **argv)
 {
 	t_info			*philo_info;
 	pthread_t		*th_philos;
+	pthread_t		supervisor;
+	int				i;
 
 	if (argc < 5 || argc > 6)
 		return (-1);
@@ -26,36 +28,17 @@ int		main(int argc, char **argv)
 	if (!th_philos)
 		return (-1);
 
-	while (check_meals(philo_info) == 0)
-		ft_msleep(1);
-
-	return (0);
-}
-
-int		check_meals(t_info *info)
-{
-	long			last_meal;
-	int				least_times_eaten;
-	int				i;
+	pthread_create(&supervisor, NULL, &check_meals, philo_info);
 
 	i = 0;
-	least_times_eaten = info->meals[i].nb_meals;
-	while (i < info->nb_philo)
+	pthread_join(supervisor, NULL);
+	while (i < philo_info->nb_philo)
 	{
-		//pthread_mutex_lock(&info->death_mutex[i]);
-		last_meal = get_timestamp(info->exec_tm);
-		if (last_meal > info->time_to_die)
-		{
-			print_log("%d died\n", info->philos[i]);
-			pthread_mutex_lock(&info->output_mutex);
-			return (-1);
-		}
-		//pthread_mutex_unlock(&info->death_mutex[i]);
-		if (least_times_eaten > info->meals[i].nb_meals)
-			least_times_eaten = info->meals[i].nb_meals;
+		pthread_join(th_philos[i], NULL);
 		i++;
 	}
-	if (info->nb_must_eat != -1 && least_times_eaten >= info->nb_must_eat)
-		return (-1);
+
+	free_all(philo_info, th_philos);
+
 	return (0);
 }

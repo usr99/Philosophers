@@ -1,9 +1,9 @@
 NAME	= philo_one
-SRC		= main.c utils.c init.c routine.c
+SRC		= main.c utils.c init.c routine.c supervisor.c
 OBJ		= ${addprefix ${OBJ_DIR}, ${SRC:.c=.o}}
 OBJ_DIR	= objs/
 CC		= gcc
-CFLAGS	= -Wall -Wextra# -Werror -fsanitize=address -g
+CFLAGS	= -Wall -Wextra -Werror# -fsanitize=address -g
 
 ${OBJ_DIR}%.o:	srcs/%.c
 	${CC} ${CFLAGS} -c $< -o $@

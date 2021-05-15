@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 18:36:12 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/13 17:36:18 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/15 02:15:41 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ void	*philo_routine(void *info)
 
 	philo = (t_philo*)info;
 	ft_msleep(philo->time_to_eat * (philo->nb_philo % 2) / 2);
-	while (1) // routine loop
+	while (*philo->is_alive) // routine loop
 	{
 		// eat
 		eat(philo);
@@ -32,23 +32,11 @@ void	*philo_routine(void *info)
 
 void	eat(t_philo *philo)
 {
-	// lock fork 0
-	pthread_mutex_lock(philo->forks[0]);
-	print_log("%d has taken a fork\n", philo);
-
-	// lock fork 1
-	pthread_mutex_lock(philo->forks[1]);
-	print_log("%d has taken a fork\n", philo);
-
-	// lock le mutex du die
-	//pthread_mutex_lock(philo->death_mutex);
+	fork_request(philo);
 
 	// update meal structure
-	philo->meals->last_meal = get_timestamp(0);
+	philo->meals->last_meal = get_timestamp(philo->exec_tm);
 	philo->meals->nb_meals++;
-
-	// unlock mutex du die
-	//pthread_mutex_unlock(philo->death_mutex);
 
 	// eat
 	print_log("%d is eating\n", philo);
@@ -68,4 +56,26 @@ void	sleeping(t_philo *philo)
 void	think(t_philo *philo)
 {
 	print_log("%d is thinking\n", philo);
+}
+
+void	fork_request(t_philo *philo)
+{
+	philo->meals->need_forks = TRUE;
+	// wait forks
+	while (philo->meals->need_forks && *philo->is_alive)
+		ft_msleep(1);
+
+	// keep philo from taking forks if dead
+	if (*philo->is_alive == FALSE)
+		return ;
+
+	// lock fork 0
+	pthread_mutex_lock(philo->forks[0]);
+	print_log("%d has taken a fork\n", philo);
+
+	// lock fork 1
+	pthread_mutex_lock(philo->forks[1]);
+	print_log("%d has taken a fork\n", philo);
+
+	return ;
 }

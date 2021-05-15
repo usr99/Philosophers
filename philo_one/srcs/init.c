@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 17:42:37 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/13 17:28:38 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/13 23:25:01 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,14 +31,12 @@ t_info			*init_philo_info(int argc, char **argv)
 	info->forks = init_forks_mutexes(info->nb_philo);
 	if (!info->forks)
 		return (NULL);
-	/*info->death_mutex = init_forks_mutexes(info->nb_philo);
-	if (!info->death_mutex)
-		return (NULL);*/
 	if (pthread_mutex_init(&info->output_mutex, NULL) != 0)
 		return (NULL);
-	info->meals = init_philos_meals(info->nb_philo, info->exec_tm);
+	info->meals = init_philos_meals(info->nb_philo);
 	if (!info->meals)
 		return (NULL);
+	info->is_alive = TRUE;
 	return (info);
 }
 
@@ -63,7 +61,7 @@ pthread_mutex_t	*init_forks_mutexes(int size)
 	return (forks);
 }
 
-t_philo_meals	*init_philos_meals(int size, long exec_tm)
+t_philo_meals	*init_philos_meals(int size)
 {
 	t_philo_meals	*meals;
 	int				i;
@@ -74,8 +72,9 @@ t_philo_meals	*init_philos_meals(int size, long exec_tm)
 	i = 0;
 	while (i < size)
 	{
-		meals[i].last_meal = exec_tm;
+		meals[i].last_meal = 0;
 		meals[i].nb_meals = 0;
+		meals[i].need_forks = FALSE;
 		i++;
 	}
 	return (meals);
@@ -99,8 +98,6 @@ pthread_t		*init_philos_threads(t_info *info)
 			return (NULL);
 		if (pthread_create(th_philos + i, NULL, &philo_routine, curr) != 0)
 			return (NULL);
-		if (pthread_detach(th_philos[i]) != 0)
-			return (NULL);
 		info->philos[i] = curr;
 		i++;
 	}
@@ -122,9 +119,10 @@ t_philo			*init_philo(t_info *info, int i)
 		new->forks[1] = &info->forks[i + 1];
 	else
 		new->forks[1] = &info->forks[0];
-	//new->death_mutex = &info->death_mutex[i];
 	new->output_mutex = &info->output_mutex;
 	new->meals = &info->meals[i];
 	new->exec_tm = info->exec_tm;
+	new->is_alive = &info->is_alive;
+	new->meals->need_forks = FALSE;
 	return (new);
 }

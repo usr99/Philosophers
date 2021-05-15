@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 01:10:01 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/15 02:20:52 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/15 02:53:32 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,11 +41,12 @@ int		ft_atoi(const char *nptr)
 
 void	print_log(char *output, t_philo *philo)
 {
-	if (*philo->is_alive == FALSE)
-		return ;
 	pthread_mutex_lock(philo->output_mutex);
-	printf("[%ld] ", get_timestamp(philo->exec_tm));
-	printf(output, philo->nb_philo);
+	if (*philo->is_alive == TRUE)
+	{
+		printf("[%ld] ", get_timestamp(philo->exec_tm));
+		printf(output, philo->nb_philo);
+	}
 	pthread_mutex_unlock(philo->output_mutex);
 }
 

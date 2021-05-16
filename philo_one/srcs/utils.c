@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 01:10:01 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/15 02:53:32 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/15 03:25:52 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ void	ft_msleep(int time_to_sleep)
 	current_tm = reference_tm;
 	while (time_to_sleep > current_tm - reference_tm)
 	{
-		usleep(100);
+		usleep(60);
 		current_tm = get_timestamp(0);
 	}
 }

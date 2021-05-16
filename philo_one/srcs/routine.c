@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 18:36:12 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/15 02:15:41 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/15 03:25:42 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,10 @@ void	eat(t_philo *philo)
 	fork_request(philo);
 
 	// update meal structure
+	pthread_mutex_lock(&philo->death_mutex);
 	philo->meals->last_meal = get_timestamp(philo->exec_tm);
 	philo->meals->nb_meals++;
+	pthread_mutex_unlock(&philo->death_mutex);
 
 	// eat
 	print_log("%d is eating\n", philo);
@@ -63,7 +65,7 @@ void	fork_request(t_philo *philo)
 	philo->meals->need_forks = TRUE;
 	// wait forks
 	while (philo->meals->need_forks && *philo->is_alive)
-		ft_msleep(1);
+		usleep(500);
 
 	// keep philo from taking forks if dead
 	if (*philo->is_alive == FALSE)

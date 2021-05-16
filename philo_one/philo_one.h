@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 17:16:27 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/13 23:24:54 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/15 03:00:55 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ typedef struct	s_philo
 	unsigned int	time_to_sleep;
 	pthread_mutex_t	*forks[2];
 	pthread_mutex_t	*output_mutex;
+	pthread_mutex_t	death_mutex;
 	t_philo_meals	*meals;
 	int				*is_alive;
 	long			exec_tm;

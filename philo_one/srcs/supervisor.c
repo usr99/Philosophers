@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/13 22:01:40 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/15 02:57:06 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/15 03:26:04 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,13 +29,17 @@ void	*check_meals(void *ptr_info)
 			if (info->philos[i]->meals->need_forks)
 				check_forks(info, i);
 
+			pthread_mutex_lock(&info->philos[i]->death_mutex);
 			last_meal = get_timestamp(info->exec_tm) - info->meals[i].last_meal;
 			if (last_meal >= info->time_to_die)
 			{
 				print_log("%d died\n", info->philos[i]);
 				info->is_alive = FALSE;
+				pthread_mutex_unlock(&info->philos[i]->death_mutex);
 				return (NULL);
 			}
+			pthread_mutex_unlock(&info->philos[i]->death_mutex);
+			
 			if (least_times_eaten > info->meals[i].nb_meals)
 				least_times_eaten = info->meals[i].nb_meals;
 			i++;
@@ -45,7 +49,7 @@ void	*check_meals(void *ptr_info)
 			info->is_alive = FALSE;
 			return (NULL);
 		}
-		ft_msleep(1);
+		usleep(500);
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 17:42:37 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/13 23:25:01 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/15 03:06:42 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,5 +124,7 @@ t_philo			*init_philo(t_info *info, int i)
 	new->exec_tm = info->exec_tm;
 	new->is_alive = &info->is_alive;
 	new->meals->need_forks = FALSE;
+	if (pthread_mutex_init(&new->death_mutex, NULL) != 0)
+		return (NULL);
 	return (new);
 }

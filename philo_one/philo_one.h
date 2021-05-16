@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo_one.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 17:16:27 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/16 16:47:41 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/17 00:44:39 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,42 +23,42 @@
 # define FALSE	0
 # define TRUE	1
 
-typedef int bool;
+typedef int	t_bool;
 
 /*
 **	STATS ABOUT PHILOSOPHERS MEALS
 */
 
-typedef struct	s_philo_meals
+typedef struct s_philo_meals
 {
 	long			last_meal;
 	int				nb_meals;
-	bool			need_forks;
-}				t_philo_meals;
+	t_bool			need_forks;
+}	t_philo_meals;
 
 /*
 **	PARAMETER FOR EACH PHILOSOPHER'S THREAD
 */
 
-typedef struct	s_philo
+typedef struct s_philo
 {
 	int				nb_philo;
 	unsigned int	time_to_eat;
 	unsigned int	time_to_sleep;
 	pthread_mutex_t	*forks[2];
-	bool			*forks_available[2];
+	t_bool			*forks_available[2];
 	pthread_mutex_t	*output_mutex;
 	pthread_mutex_t	death_mutex;
 	t_philo_meals	*meals;
-	bool			*is_alive;
+	t_bool			*is_alive;
 	long			exec_tm;
-}				t_philo;
+}	t_philo;
 
 /*
 **	MAIN STRUCTURE TO STORE ARGUMENTS
 */
 
-typedef struct	s_info
+typedef struct s_info
 {
 	unsigned int	time_to_die;
 	unsigned int	time_to_eat;
@@ -68,11 +68,11 @@ typedef struct	s_info
 	long			exec_tm;
 	t_philo			**philos;
 	pthread_mutex_t	*forks;
-	bool			*forks_available;
+	t_bool			*forks_available;
 	pthread_mutex_t	output_mutex;
 	t_philo_meals	*meals;
-	bool			is_alive;
-}				t_info;
+	t_bool			is_alive;
+}	t_info;
 
 /*
 **	INIT FUNCTIONS
@@ -84,12 +84,17 @@ pthread_t		*init_philos_threads(t_info *info);
 t_philo			*init_philo(t_info *info, int i);
 t_philo_meals	*init_philos_meals(int size);
 
+int				get_arg_info(t_info *info, int argc, char **argv);
+int				create_forks(t_info *info);
+
 /*
 **	SUPERVISOR FUNCTIONS
 */
 
-void			*check_meals(void *ptr_info);
+void			*supervisor_func(void *ptr_info);
 void			check_forks(t_info *info, int philo);
+int				check_deaths(t_info *info, int n);
+int				check_meals(t_info *info, int n);
 
 /*
 **	PHILOSOPHER ROUTINE

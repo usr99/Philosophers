@@ -1,5 +1,5 @@
 NAME	= philo_one
-SRC		= main.c utils.c init.c routine.c supervisor.c
+SRC		= main.c utils.c init.c routine.c supervisor.c init_utils.c
 OBJ		= ${addprefix ${OBJ_DIR}, ${SRC:.c=.o}}
 OBJ_DIR	= objs/
 CC		= gcc

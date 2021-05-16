@@ -12,7 +12,7 @@
 
 #include "../philo_one.h"
 
-int		ft_atoi(const char *nptr)
+int	ft_atoi(const char *nptr)
 {
 	int		i;
 	int		is_negative;
@@ -85,6 +85,7 @@ void	free_all(t_info *info, pthread_t *th)
 	free(info->philos);
 	free(info->forks);
 	free(info->meals);
+	free(info->forks_available);
 	free(info);
 	free(th);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 18:36:12 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/16 19:42:33 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/17 01:27:36 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,12 @@ void	*philo_routine(void *info)
 {
 	t_philo			*philo;
 
-	philo = (t_philo*)info;
+	philo = (t_philo *)info;
 	ft_msleep(philo->time_to_eat * (philo->nb_philo % 2) / 2);
-	while (*philo->is_alive) // routine loop
+	while (*philo->is_alive)
 	{
-		// eat
 		eat(philo);
-		// sleep
 		sleeping(philo);
-		// think
 		think(philo);
 	}
 	return (NULL);
@@ -33,17 +30,12 @@ void	*philo_routine(void *info)
 void	eat(t_philo *philo)
 {
 	fork_request(philo);
-
-	// update meal structure
+	pthread_mutex_lock(&philo->death_mutex);
 	philo->meals->last_meal = get_timestamp(philo->exec_tm);
 	philo->meals->nb_meals++;
 	pthread_mutex_unlock(&philo->death_mutex);
-
-	// eat
 	print_log("%d is eating\n", philo);
 	ft_msleep(philo->time_to_eat);
-
-	// unlock forks
 	pthread_mutex_unlock(philo->forks[0]);
 	pthread_mutex_unlock(philo->forks[1]);
 	*philo->forks_available[0] = TRUE;
@@ -64,19 +56,12 @@ void	think(t_philo *philo)
 void	fork_request(t_philo *philo)
 {
 	philo->meals->need_forks = TRUE;
-	// wait forks
 	while (philo->meals->need_forks && *philo->is_alive)
 		usleep(500);
-
-	// keep philo from taking forks if dead
 	if (*philo->is_alive == FALSE)
 		return ;
-
 	pthread_mutex_lock(philo->forks[0]);
 	print_log("%d has taken a fork\n", philo);
 	pthread_mutex_lock(philo->forks[1]);
 	print_log("%d has taken a fork\n", philo);
-	pthread_mutex_lock(&philo->death_mutex);
-
-	return ;
 }

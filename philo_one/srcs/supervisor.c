@@ -3,23 +3,22 @@
 /*                                                        :::      ::::::::   */
 /*   supervisor.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
+/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/13 22:01:40 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/16 19:42:42 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/17 01:27:41 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../philo_one.h"
 
-void	*check_meals(void *ptr_info)
+void	*supervisor_func(void *ptr_info)
 {
 	t_info			*info;
-	long			last_meal;
 	int				least_times_eaten;
 	int				i;
 
-	info = (t_info*)ptr_info;
+	info = (t_info *)ptr_info;
 	while (1)
 	{
 		i = 0;
@@ -28,27 +27,14 @@ void	*check_meals(void *ptr_info)
 		{
 			if (info->philos[i]->meals->need_forks)
 				check_forks(info, i);
-
-			pthread_mutex_lock(&info->philos[i]->death_mutex);
-			last_meal = get_timestamp(info->exec_tm) - info->meals[i].last_meal;
-			if (last_meal >= info->time_to_die)
-			{
-				print_log("%d died\n", info->philos[i]);
-				info->is_alive = FALSE;
-				pthread_mutex_unlock(&info->philos[i]->death_mutex);
+			if (check_deaths(info, i) != 0)
 				return (NULL);
-			}
-			pthread_mutex_unlock(&info->philos[i]->death_mutex);
-			
 			if (least_times_eaten > info->meals[i].nb_meals)
 				least_times_eaten = info->meals[i].nb_meals;
 			i++;
 		}
-		if (info->nb_must_eat != -1 && least_times_eaten >= info->nb_must_eat)
-		{
-			info->is_alive = FALSE;
+		if (check_meals(info, least_times_eaten) == 0)
 			return (NULL);
-		}
 		usleep(500);
 	}
 }
@@ -56,16 +42,41 @@ void	*check_meals(void *ptr_info)
 void	check_forks(t_info *info, int philo)
 {
 	int		i;
-	
+
 	i = philo + 1;
 	if (philo == info->nb_philo - 1)
 		i = 0;
-
-	// are forks taken ?
 	if (info->forks_available[philo] && info->forks_available[i])
 	{
 		info->philos[philo]->meals->need_forks = FALSE;
 		info->forks_available[philo] = FALSE;
 		info->forks_available[i] = FALSE;
 	}
+}
+
+int	check_deaths(t_info *info, int n)
+{
+	long	last_meal;
+
+	pthread_mutex_lock(&info->philos[n]->death_mutex);
+	last_meal = get_timestamp(info->exec_tm) - info->philos[n]->meals->last_meal;
+	if (last_meal >= info->time_to_die)
+	{
+		print_log("%d died\n", info->philos[n]);
+		info->is_alive = FALSE;
+		pthread_mutex_unlock(&info->philos[n]->death_mutex);
+		return (-1);
+	}
+	pthread_mutex_unlock(&info->philos[n]->death_mutex);
+	return (0);
+}
+
+int	check_meals(t_info *info, int least)
+{
+	if (info->nb_must_eat != -1 && least >= info->nb_must_eat)
+	{
+		info->is_alive = FALSE;
+		return (0);
+	}
+	return (-1);
 }

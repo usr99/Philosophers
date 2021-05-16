@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 17:42:37 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/15 03:06:42 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/16 16:49:04 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 t_info			*init_philo_info(int argc, char **argv)
 {
 	t_info	*info;
+	int		i;
 	
 	info = (t_info*)malloc(sizeof(t_info));
 	if (!info)
@@ -37,6 +38,15 @@ t_info			*init_philo_info(int argc, char **argv)
 	if (!info->meals)
 		return (NULL);
 	info->is_alive = TRUE;
+	info->forks_available = (bool*)malloc(sizeof(bool) * info->nb_philo);
+	if (!info->forks_available)
+		return (NULL);
+	i = 0;
+	while (i < info->nb_philo)
+	{
+		info->forks_available[i] = TRUE;
+		i++;
+	}
 	return (info);
 }
 
@@ -115,10 +125,17 @@ t_philo			*init_philo(t_info *info, int i)
 	new->time_to_eat = info->time_to_eat;
 	new->time_to_sleep = info->time_to_sleep;
 	new->forks[0] = &info->forks[i];
+	new->forks_available[0] = &info->forks_available[i];
 	if (i != info->nb_philo - 1)
+	{
 		new->forks[1] = &info->forks[i + 1];
+		new->forks_available[1] = &info->forks_available[i + 1];
+	}
 	else
+	{
 		new->forks[1] = &info->forks[0];
+		new->forks_available[1] = &info->forks_available[0];
+	}
 	new->output_mutex = &info->output_mutex;
 	new->meals = &info->meals[i];
 	new->exec_tm = info->exec_tm;

@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 17:16:27 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/15 03:00:55 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/16 16:47:41 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,8 @@
 # define FALSE	0
 # define TRUE	1
 
+typedef int bool;
+
 /*
 **	STATS ABOUT PHILOSOPHERS MEALS
 */
@@ -31,7 +33,7 @@ typedef struct	s_philo_meals
 {
 	long			last_meal;
 	int				nb_meals;
-	int				need_forks;
+	bool			need_forks;
 }				t_philo_meals;
 
 /*
@@ -44,10 +46,11 @@ typedef struct	s_philo
 	unsigned int	time_to_eat;
 	unsigned int	time_to_sleep;
 	pthread_mutex_t	*forks[2];
+	bool			*forks_available[2];
 	pthread_mutex_t	*output_mutex;
 	pthread_mutex_t	death_mutex;
 	t_philo_meals	*meals;
-	int				*is_alive;
+	bool			*is_alive;
 	long			exec_tm;
 }				t_philo;
 
@@ -65,9 +68,10 @@ typedef struct	s_info
 	long			exec_tm;
 	t_philo			**philos;
 	pthread_mutex_t	*forks;
+	bool			*forks_available;
 	pthread_mutex_t	output_mutex;
 	t_philo_meals	*meals;
-	int				is_alive;
+	bool			is_alive;
 }				t_info;
 
 /*

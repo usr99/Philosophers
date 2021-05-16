@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 18:36:12 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/17 01:27:36 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/17 01:30:48 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,8 @@ void	eat(t_philo *philo)
 {
 	fork_request(philo);
 	pthread_mutex_lock(&philo->death_mutex);
-	philo->meals->last_meal = get_timestamp(philo->exec_tm);
-	philo->meals->nb_meals++;
+	philo->meals.last_meal = get_timestamp(philo->exec_tm);
+	philo->meals.nb_meals++;
 	pthread_mutex_unlock(&philo->death_mutex);
 	print_log("%d is eating\n", philo);
 	ft_msleep(philo->time_to_eat);
@@ -55,8 +55,8 @@ void	think(t_philo *philo)
 
 void	fork_request(t_philo *philo)
 {
-	philo->meals->need_forks = TRUE;
-	while (philo->meals->need_forks && *philo->is_alive)
+	philo->meals.need_forks = TRUE;
+	while (philo->meals.need_forks && *philo->is_alive)
 		usleep(500);
 	if (*philo->is_alive == FALSE)
 		return ;

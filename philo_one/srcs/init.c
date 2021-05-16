@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 17:42:37 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/17 00:45:53 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/17 01:30:00 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,6 @@ t_info	*init_philo_info(int argc, char **argv)
 	info->is_alive = TRUE;
 	pthread_mutex_init(&info->output_mutex, NULL);
 	if (create_forks(info) == -1)
-		return (NULL);
-	info->meals = init_philos_meals(info->nb_philo);
-	if (!info->meals)
 		return (NULL);
 	return (info);
 }
@@ -114,10 +111,11 @@ t_philo	*init_philo(t_info *info, int i)
 	new->forks[1] = &info->forks[i];
 	new->forks_available[1] = &info->forks_available[i];
 	new->output_mutex = &info->output_mutex;
-	new->meals = &info->meals[i];
 	new->exec_tm = info->exec_tm;
 	new->is_alive = &info->is_alive;
-	new->meals->need_forks = FALSE;
+	new->meals.need_forks = FALSE;
+	new->meals.last_meal = 0;
+	new->meals.nb_meals = 0;
 	pthread_mutex_init(&new->death_mutex, NULL);
 	return (new);
 }

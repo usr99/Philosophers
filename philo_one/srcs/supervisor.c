@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/13 22:01:40 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/16 16:54:09 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/16 19:42:42 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,8 @@ void	*check_meals(void *ptr_info)
 		least_times_eaten = info->meals[i].nb_meals;
 		while (i < info->nb_philo)
 		{
-			/*if (info->philos[i]->meals->need_forks)
-				check_forks(info, i);*/
+			if (info->philos[i]->meals->need_forks)
+				check_forks(info, i);
 
 			pthread_mutex_lock(&info->philos[i]->death_mutex);
 			last_meal = get_timestamp(info->exec_tm) - info->meals[i].last_meal;
@@ -53,27 +53,19 @@ void	*check_meals(void *ptr_info)
 	}
 }
 
-/*void	check_forks(t_info *info, int philo)
+void	check_forks(t_info *info, int philo)
 {
-	long	last_meal;
 	int		i;
 	
-	// is left fork taken ?
-	i = philo - 1;
-	if (philo == 0)
-		i = info->nb_philo - 1;
-
-	// is right fork taken ?
 	i = philo + 1;
 	if (philo == info->nb_philo - 1)
 		i = 0;
-	last_meal = get_timestamp(info->exec_tm) - info->meals[i].last_meal;
-	if (last_meal >= info->time_to_eat || info->meals[i].last_meal == 0)
-		forks_available[1] = TRUE;
-	else
-		forks_available[1] = FALSE;
 
-	// if forks available, philo can take them
-	if (forks_available[0] == TRUE && forks_available[1] == TRUE)
+	// are forks taken ?
+	if (info->forks_available[philo] && info->forks_available[i])
+	{
 		info->philos[philo]->meals->need_forks = FALSE;
-}*/
+		info->forks_available[philo] = FALSE;
+		info->forks_available[i] = FALSE;
+	}
+}

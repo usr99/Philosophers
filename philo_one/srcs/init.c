@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 17:42:37 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/16 16:49:04 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/16 20:08:14 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,13 @@ t_info			*init_philo_info(int argc, char **argv)
 	info->time_to_die = ft_atoi(argv[2]);
 	info->time_to_eat = ft_atoi(argv[3]);
 	info->time_to_sleep = ft_atoi(argv[4]);
+	if (info->nb_philo < 1 || info->time_to_die < 1 || info->time_to_eat < 1
+		|| info->time_to_sleep < 1)
+	{
+		printf("Arguments must be non-zero positive integers\n");
+		free(info);
+		return (NULL);
+	}
 	if (argc == 6)
 		info->nb_must_eat = ft_atoi(argv[5]);
 	else

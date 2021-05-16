@@ -6,7 +6,7 @@
 /*   By: mamartin <mamartin@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 18:36:12 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/16 17:19:40 by mamartin         ###   ########.fr       */
+/*   Updated: 2021/05/16 19:42:33 by mamartin         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,9 +63,9 @@ void	think(t_philo *philo)
 
 void	fork_request(t_philo *philo)
 {
-	//philo->meals->need_forks = TRUE;
+	philo->meals->need_forks = TRUE;
 	// wait forks
-	while ((philo->forks_available[0] == FALSE || philo->forks_available[1] == FALSE) && *philo->is_alive)
+	while (philo->meals->need_forks && *philo->is_alive)
 		usleep(500);
 
 	// keep philo from taking forks if dead
@@ -73,14 +73,10 @@ void	fork_request(t_philo *philo)
 		return ;
 
 	pthread_mutex_lock(philo->forks[0]);
+	print_log("%d has taken a fork\n", philo);
 	pthread_mutex_lock(philo->forks[1]);
+	print_log("%d has taken a fork\n", philo);
 	pthread_mutex_lock(&philo->death_mutex);
-
-	*philo->forks_available[0] = FALSE;
-	*philo->forks_available[1] = FALSE;
-	
-	print_log("%d has taken a fork\n", philo);
-	print_log("%d has taken a fork\n", philo);
 
 	return ;
 }

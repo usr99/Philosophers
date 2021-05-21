@@ -6,22 +6,25 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 17:16:27 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/17 02:39:56 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/17 19:09:32 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_ONE_H
-# define PHILO_ONE_H
+#ifndef PHILO_TWO_H
+# define PHILO_TWO_H
 
 # include <unistd.h>
 # include <stdlib.h>
 # include <stdio.h>
 # include <pthread.h>
+# include <semaphore.h>
+# include <fcntl.h>
 # include <sys/time.h>
 # include <sys/types.h>
 
-# define FALSE	0
-# define TRUE	1
+# define FALSE			0
+# define TRUE			1
+# define SEM_FORKS_NAME	"forks"
 
 typedef int	t_bool;
 
@@ -45,11 +48,16 @@ typedef struct s_philo
 	int				nb_philo;
 	unsigned int	time_to_eat;
 	unsigned int	time_to_sleep;
+	sem_t			*forks;
+
 	pthread_mutex_t	*output_mutex;
+	pthread_mutex_t	*alive_mutex;
 	pthread_mutex_t	death_mutex;
+
 	t_philo_meals	meals;
 	t_bool			*is_alive;
 	long			exec_tm;
+	int				*forks_available;
 }	t_philo;
 
 /*
@@ -64,8 +72,13 @@ typedef struct s_info
 	int				nb_must_eat;
 	int				nb_philo;
 	long			exec_tm;
+	sem_t			*forks;
 	t_philo			**philos;
+	int				forks_available;
+
 	pthread_mutex_t	output_mutex;
+	pthread_mutex_t	alive_mutex;
+
 	t_bool			is_alive;
 }	t_info;
 
@@ -87,6 +100,7 @@ int				get_arg_info(t_info *info, int argc, char **argv);
 void			*supervisor_func(void *ptr_info);
 int				check_deaths(t_info *info, int n);
 int				check_meals(t_info *info, int n);
+void			check_forks(t_info *info, t_philo *philo);
 
 /*
 **	PHILOSOPHER ROUTINE
@@ -96,6 +110,7 @@ void			*philo_routine(void *info);
 void			eat(t_philo *philo);
 void			sleeping(t_philo *philo);
 void			think(t_philo *philo);
+void			fork_request(t_philo *philo);
 
 /*
 **	SOME USEFUL FUNCTIONS

@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/13 22:01:40 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/17 19:10:03 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/21 17:35:36 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,18 +42,18 @@ int	check_deaths(t_info *info, int n)
 {
 	long	last_meal;
 
-	pthread_mutex_lock(&info->philos[n]->death_mutex);
+	sem_wait(info->philos[n]->death_mutex);
 	last_meal = get_timestamp(info->exec_tm) - info->philos[n]->meals.last_meal;
 	if (last_meal >= info->time_to_die)
 	{
 		print_log("%d died\n", info->philos[n]);
-		pthread_mutex_lock(&info->alive_mutex);
+		sem_wait(info->alive_mutex);
 		info->is_alive = FALSE;
-		pthread_mutex_unlock(&info->alive_mutex);
-		pthread_mutex_unlock(&info->philos[n]->death_mutex);
+		sem_post(info->alive_mutex);
+		sem_post(info->philos[n]->death_mutex);
 		return (-1);
 	}
-	pthread_mutex_unlock(&info->philos[n]->death_mutex);
+	sem_post(info->philos[n]->death_mutex);
 	return (0);
 }
 
@@ -61,9 +61,9 @@ int	check_meals(t_info *info, int least)
 {
 	if (info->nb_must_eat != -1 && least >= info->nb_must_eat)
 	{
-		pthread_mutex_lock(&info->alive_mutex);
+		sem_wait(info->alive_mutex);
 		info->is_alive = FALSE;
-		pthread_mutex_unlock(&info->alive_mutex);
+		sem_post(info->alive_mutex);
 		return (0);
 	}
 	return (-1);

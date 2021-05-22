@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 17:16:27 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/17 19:09:32 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/21 18:07:35 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,11 @@
 # include <sys/time.h>
 # include <sys/types.h>
 
-# define FALSE			0
-# define TRUE			1
-# define SEM_FORKS_NAME	"forks"
+# define FALSE				0
+# define TRUE				1
+# define SEM_FORKS_NAME		"forks"
+# define SEM_OUTPUT_NAME	"output"
+# define SEM_ALIVE_NAME		"alive"
 
 typedef int	t_bool;
 
@@ -49,11 +51,10 @@ typedef struct s_philo
 	unsigned int	time_to_eat;
 	unsigned int	time_to_sleep;
 	sem_t			*forks;
-
-	pthread_mutex_t	*output_mutex;
-	pthread_mutex_t	*alive_mutex;
-	pthread_mutex_t	death_mutex;
-
+	sem_t			*output_mutex;
+	sem_t			*alive_mutex;
+	sem_t			*death_mutex;
+	char			*death_name;
 	t_philo_meals	meals;
 	t_bool			*is_alive;
 	long			exec_tm;
@@ -75,10 +76,8 @@ typedef struct s_info
 	sem_t			*forks;
 	t_philo			**philos;
 	int				forks_available;
-
-	pthread_mutex_t	output_mutex;
-	pthread_mutex_t	alive_mutex;
-
+	sem_t			*output_mutex;
+	sem_t			*alive_mutex;
 	t_bool			is_alive;
 }	t_info;
 
@@ -92,6 +91,7 @@ t_philo			*init_philo(t_info *info, int i);
 t_philo_meals	*init_philos_meals(int size);
 
 int				get_arg_info(t_info *info, int argc, char **argv);
+char			*ft_itoa(int n);
 
 /*
 **	SUPERVISOR FUNCTIONS

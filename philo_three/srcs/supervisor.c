@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/13 22:01:40 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/21 17:35:36 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/22 19:37:47 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ void	*supervisor_func(void *ptr_info)
 		while (i < info->nb_philo)
 		{
 			check_forks(info, info->philos[i]);
-			if (check_deaths(info, i) != 0)
+			if (check_deaths(info, i) != 0) 
 				return (NULL);
 			if (least_times_eaten > info->philos[i]->meals.nb_meals)
 				least_times_eaten = info->philos[i]->meals.nb_meals;
@@ -42,30 +42,23 @@ int	check_deaths(t_info *info, int n)
 {
 	long	last_meal;
 
-	sem_wait(info->philos[n]->death_mutex);
+	sem_wait(info->philos[n]->death_sem);
 	last_meal = get_timestamp(info->exec_tm) - info->philos[n]->meals.last_meal;
 	if (last_meal >= info->time_to_die)
 	{
 		print_log("%d died\n", info->philos[n]);
-		sem_wait(info->alive_mutex);
-		info->is_alive = FALSE;
-		sem_post(info->alive_mutex);
-		sem_post(info->philos[n]->death_mutex);
+		sem_wait(info->output_sem);
+		sem_post(info->philos[n]->death_sem);
 		return (-1);
 	}
-	sem_post(info->philos[n]->death_mutex);
+	sem_post(info->philos[n]->death_sem);
 	return (0);
 }
 
 int	check_meals(t_info *info, int least)
 {
 	if (info->nb_must_eat != -1 && least >= info->nb_must_eat)
-	{
-		sem_wait(info->alive_mutex);
-		info->is_alive = FALSE;
-		sem_post(info->alive_mutex);
 		return (0);
-	}
 	return (-1);
 }
 

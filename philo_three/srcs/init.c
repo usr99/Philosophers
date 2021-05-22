@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 17:42:37 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/21 18:09:43 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/22 17:11:57 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,13 @@ t_info	*init_philo_info(int argc, char **argv)
 	if (get_arg_info(info, argc, argv) == -1)
 		return (NULL);
 	info->exec_tm = get_timestamp(0);
-	info->is_alive = TRUE;
 	sem_unlink(SEM_FORKS_NAME);
 	info->forks = sem_open(SEM_FORKS_NAME, O_CREAT | O_EXCL,
 			0600, info->nb_philo);
 	sem_unlink(SEM_OUTPUT_NAME);
-	info->output_mutex = sem_open(SEM_OUTPUT_NAME, O_CREAT | O_EXCL,
+	info->output_sem = sem_open(SEM_OUTPUT_NAME, O_CREAT | O_EXCL,
 			0600, 1);
-	sem_unlink(SEM_ALIVE_NAME);
-	info->alive_mutex = sem_open(SEM_ALIVE_NAME, O_CREAT | O_EXCL,
-			0600, 1);
-	if (!info->forks || !info->output_mutex || !info->alive_mutex)
+	if (!info->forks || !info->output_sem)
 		return (NULL);
 	info->forks_available = info->nb_philo;
 	return (info);
@@ -59,15 +55,16 @@ t_philo_meals	*init_philos_meals(int size)
 	return (meals);
 }
 
-pthread_t	*init_philos_threads(t_info *info)
+pid_t	*init_philos_processes(t_info *info)
 {
-	pthread_t	*th_philos;
+	pid_t		*childs;
 	t_philo		*curr;
 	int			i;
 
-	th_philos = (pthread_t *)malloc(sizeof(pthread_t) * info->nb_philo);
+	childs = (pid_t *)malloc(sizeof(pid_t) * info->nb_philo);
+	memset(childs, 0, sizeof(pid_t) * info->nb_philo);
 	info->philos = (t_philo **)malloc(sizeof(t_philo *) * info->nb_philo);
-	if (!th_philos || !info->philos)
+	if (!childs || !info->philos)
 		return (NULL);
 	i = 0;
 	while (i < info->nb_philo)
@@ -75,11 +72,18 @@ pthread_t	*init_philos_threads(t_info *info)
 		curr = init_philo(info, i);
 		if (!curr)
 			return (NULL);
-		pthread_create(th_philos + i, NULL, &philo_routine, curr);
+		childs[i] = fork();
+		if (childs[i] == -1)
+			return (childs);
+		else if (childs[i] == 0)
+		{
+			philo_routine(curr);
+			exit(EXIT_SUCCESS);
+		}
 		info->philos[i] = curr;
 		i++;
 	}
-	return (th_philos);
+	return (childs);
 }
 
 t_philo	*init_philo(t_info *info, int i)
@@ -92,18 +96,16 @@ t_philo	*init_philo(t_info *info, int i)
 	new->nb_philo = i + 1;
 	new->time_to_eat = info->time_to_eat;
 	new->time_to_sleep = info->time_to_sleep;
-	new->output_mutex = info->output_mutex;
-	new->alive_mutex = info->alive_mutex;
+	new->output_sem = info->output_sem;
 	new->exec_tm = info->exec_tm;
-	new->is_alive = &info->is_alive;
 	new->meals.need_forks = FALSE;
 	new->meals.last_meal = 0;
 	new->meals.nb_meals = 0;
 	new->death_name = ft_itoa(i);
 	sem_unlink(new->death_name);
-	new->death_mutex = sem_open(new->death_name, O_CREAT | O_EXCL,
+	new->death_sem = sem_open(new->death_name, O_CREAT | O_EXCL,
 			0600, 1);
-	if (!new->death_mutex)
+	if (!new->death_sem)
 		return (NULL);
 	new->forks = info->forks;
 	new->forks_available = &info->forks_available;

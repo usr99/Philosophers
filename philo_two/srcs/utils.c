@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 01:10:01 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/17 13:42:51 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/21 18:07:27 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,15 +41,15 @@ int	ft_atoi(const char *nptr)
 
 void	print_log(char *output, t_philo *philo)
 {
-	pthread_mutex_lock(philo->output_mutex);
-	pthread_mutex_lock(philo->alive_mutex);
+	sem_wait(philo->alive_mutex);
+	sem_wait(philo->output_mutex);
 	if (*philo->is_alive == TRUE)
 	{
 		printf("[%ld] ", get_timestamp(philo->exec_tm));
 		printf(output, philo->nb_philo);
 	}
-	pthread_mutex_unlock(philo->alive_mutex);
-	pthread_mutex_unlock(philo->output_mutex);
+	sem_post(philo->alive_mutex);
+	sem_post(philo->output_mutex);
 }
 
 long	get_timestamp(long reference_tm)
@@ -81,11 +81,18 @@ void	free_all(t_info *info, pthread_t *th)
 	i = 0;
 	while (i < info->nb_philo)
 	{
+		sem_close(info->philos[i]->death_mutex);
+		sem_unlink(info->philos[i]->death_name);
+		free(info->philos[i]->death_name);
 		free(info->philos[i]);
 		i++;
 	}
 	sem_close(info->forks);
 	sem_unlink(SEM_FORKS_NAME);
+	sem_close(info->alive_mutex);
+	sem_unlink(SEM_ALIVE_NAME);
+	sem_close(info->output_mutex);
+	sem_unlink(SEM_OUTPUT_NAME);
 	free(info->philos);
 	free(info);
 	free(th);

@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 18:36:12 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/17 18:56:19 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/21 17:40:19 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,26 +18,26 @@ void	*philo_routine(void *info)
 
 	philo = (t_philo *)info;
 	ft_msleep(philo->time_to_eat * (philo->nb_philo % 2) / 2);
-	pthread_mutex_lock(philo->alive_mutex);
+	sem_wait(philo->alive_mutex);
 	while (*philo->is_alive)
 	{
-		pthread_mutex_unlock(philo->alive_mutex);
+		sem_post(philo->alive_mutex);
 		eat(philo);
 		sleeping(philo);
 		think(philo);
-		pthread_mutex_lock(philo->alive_mutex);
+		sem_wait(philo->alive_mutex);
 	}
-	pthread_mutex_unlock(philo->alive_mutex);
+	sem_post(philo->alive_mutex);
 	return (NULL);
 }
 
 void	eat(t_philo *philo)
 {
 	fork_request(philo);
-	pthread_mutex_lock(&philo->death_mutex);
+	sem_wait(philo->death_mutex);
 	philo->meals.last_meal = get_timestamp(philo->exec_tm);
 	philo->meals.nb_meals++;
-	pthread_mutex_unlock(&philo->death_mutex);
+	sem_post(philo->death_mutex);
 	print_log("%d is eating\n", philo);
 	ft_msleep(philo->time_to_eat);
 	sem_post(philo->forks);

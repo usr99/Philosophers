@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 17:42:37 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/22 17:11:57 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/22 23:31:48 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,18 +69,17 @@ pid_t	*init_philos_processes(t_info *info)
 	i = 0;
 	while (i < info->nb_philo)
 	{
-		curr = init_philo(info, i);
-		if (!curr)
-			return (NULL);
 		childs[i] = fork();
 		if (childs[i] == -1)
 			return (childs);
 		else if (childs[i] == 0)
 		{
+			curr = init_philo(info, i);
+			if (!curr)
+				return (NULL);	
 			philo_routine(curr);
 			exit(EXIT_SUCCESS);
 		}
-		info->philos[i] = curr;
 		i++;
 	}
 	return (childs);

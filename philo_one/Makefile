@@ -3,7 +3,7 @@ SRC		= main.c utils.c init.c routine.c supervisor.c init_utils.c
 OBJ		= ${addprefix ${OBJ_DIR}, ${SRC:.c=.o}}
 OBJ_DIR	= objs/
 CC		= gcc
-CFLAGS	= -Wall -Wextra -Werror# -fsanitize=address -g
+CFLAGS	= -Wall -Wextra -Werror# -fsanitize=thread -g
 
 ${OBJ_DIR}%.o:	srcs/%.c
 	${CC} ${CFLAGS} -c $< -o $@

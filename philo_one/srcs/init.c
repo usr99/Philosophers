@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 17:42:37 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/17 01:30:00 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/30 15:52:25 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ t_info	*init_philo_info(int argc, char **argv)
 	info->exec_tm = get_timestamp(0);
 	info->is_alive = TRUE;
 	pthread_mutex_init(&info->output_mutex, NULL);
+	pthread_mutex_init(&info->alive_mutex, NULL);
 	if (create_forks(info) == -1)
 		return (NULL);
 	return (info);
@@ -48,25 +49,6 @@ pthread_mutex_t	*init_forks_mutexes(int size)
 		i++;
 	}
 	return (forks);
-}
-
-t_philo_meals	*init_philos_meals(int size)
-{
-	t_philo_meals	*meals;
-	int				i;
-
-	meals = (t_philo_meals *)malloc(sizeof(t_philo_meals) * size);
-	if (!meals)
-		return (NULL);
-	i = 0;
-	while (i < size)
-	{
-		meals[i].last_meal = 0;
-		meals[i].nb_meals = 0;
-		meals[i].need_forks = FALSE;
-		i++;
-	}
-	return (meals);
 }
 
 pthread_t	*init_philos_threads(t_info *info)
@@ -111,6 +93,7 @@ t_philo	*init_philo(t_info *info, int i)
 	new->forks[1] = &info->forks[i];
 	new->forks_available[1] = &info->forks_available[i];
 	new->output_mutex = &info->output_mutex;
+	new->alive_mutex = &info->alive_mutex;
 	new->exec_tm = info->exec_tm;
 	new->is_alive = &info->is_alive;
 	new->meals.need_forks = FALSE;

@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 17:16:27 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/22 20:27:30 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/30 16:24:43 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,10 @@
 
 # define FALSE				0
 # define TRUE				1
-# define SEM_FORKS_NAME		"forks"
-# define SEM_OUTPUT_NAME	"output"
+# define SEM_FORKS_NAME		"SEM_forks"
+# define SEM_OUTPUT_NAME	"SEM_output"
+# define SEM_ALIVE_NAME		"SEM_alive"
+# define SEM_MEALS_NAME		"SEM_meals"
 
 typedef int	t_bool;
 
@@ -39,7 +41,6 @@ typedef struct s_philo_meals
 {
 	long			last_meal;
 	int				nb_meals;
-	t_bool			need_forks;
 }	t_philo_meals;
 
 /*
@@ -49,15 +50,19 @@ typedef struct s_philo_meals
 typedef struct s_philo
 {
 	int				nb_philo;
+	unsigned int	time_to_die;
 	unsigned int	time_to_eat;
 	unsigned int	time_to_sleep;
+	int				nb_must_eat;
 	sem_t			*forks;
 	sem_t			*output_sem;
 	sem_t			*death_sem;
+	sem_t			*meals_count_sem;
+	sem_t			*alive_sem;
 	char			*death_name;
 	t_philo_meals	meals;
+	t_bool			is_alive;
 	long			exec_tm;
-	int				*forks_available;
 }	t_philo;
 
 /*
@@ -73,9 +78,9 @@ typedef struct s_info
 	int				nb_philo;
 	long			exec_tm;
 	sem_t			*forks;
-	t_philo			**philos;
-	int				forks_available;
 	sem_t			*output_sem;
+	sem_t			*meals_count_sem;
+	sem_t			*alive_sem;
 }	t_info;
 
 /*
@@ -85,19 +90,9 @@ typedef struct s_info
 t_info			*init_philo_info(int argc, char **argv);
 pid_t			*init_philos_processes(t_info *info);
 t_philo			*init_philo(t_info *info, int i);
-t_philo_meals	*init_philos_meals(int size);
 
 int				get_arg_info(t_info *info, int argc, char **argv);
 char			*ft_itoa(int n);
-
-/*
-**	SUPERVISOR FUNCTIONS
-*/
-
-void			*supervisor_func(void *ptr_info);
-int				check_deaths(t_info *info, int n);
-int				check_meals(t_info *info, int n);
-void			check_forks(t_info *info, t_philo *philo);
 
 /*
 **	PHILOSOPHER ROUTINE
@@ -107,7 +102,18 @@ void			*philo_routine(void *info);
 void			eat(t_philo *philo);
 void			sleeping(t_philo *philo);
 void			think(t_philo *philo);
-void			fork_request(t_philo *philo);
+void			destroy_philo(t_philo *philo);
+
+/*
+**	SUPERVISOR
+*/
+
+int				wait_meals(t_info *info);
+void			wait_processes(t_info *info, pid_t *childs, int pid_meals);
+
+void			*monitoring(void *ptr);
+void			*check_deaths(void *ptr);
+void			*kill_philos(t_philo *philo);
 
 /*
 **	SOME USEFUL FUNCTIONS

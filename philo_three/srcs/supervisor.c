@@ -5,83 +5,56 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/13 22:01:40 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/22 19:37:47 by user42           ###   ########.fr       */
+/*   Created: 2021/05/30 15:59:05 by user42            #+#    #+#             */
+/*   Updated: 2021/05/30 16:27:34 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../philo_three.h"
 
-void	*supervisor_func(void *ptr_info)
+void	*monitoring(void *ptr)
 {
-	t_info			*info;
-	int				least_times_eaten;
-	int				i;
-
-	info = (t_info *)ptr_info;
-	while (1)
-	{
-		i = 0;
-		least_times_eaten = info->philos[i]->meals.nb_meals;
-		while (i < info->nb_philo)
-		{
-			check_forks(info, info->philos[i]);
-			if (check_deaths(info, i) != 0) 
-				return (NULL);
-			if (least_times_eaten > info->philos[i]->meals.nb_meals)
-				least_times_eaten = info->philos[i]->meals.nb_meals;
-			i++;
-		}
-		if (check_meals(info, least_times_eaten) == 0)
-			return (NULL);
-		usleep(100);
-	}
-}
-
-int	check_deaths(t_info *info, int n)
-{
+	t_philo	*philo;
+	t_bool	is_sated;
 	long	last_meal;
 
-	sem_wait(info->philos[n]->death_sem);
-	last_meal = get_timestamp(info->exec_tm) - info->philos[n]->meals.last_meal;
-	if (last_meal >= info->time_to_die)
+	is_sated = FALSE;
+	philo = (t_philo *)ptr;
+	while (philo->is_alive)
 	{
-		print_log("%d died\n", info->philos[n]);
-		sem_wait(info->output_sem);
-		sem_post(info->philos[n]->death_sem);
-		return (-1);
+		sem_wait(philo->death_sem);
+		last_meal = get_timestamp(philo->exec_tm) - philo->meals.last_meal;
+		if (last_meal >= philo->time_to_die)
+			return (kill_philos(philo));
+		sem_post(philo->death_sem);
+		if (!is_sated && philo->meals.nb_meals >= philo->nb_must_eat)
+		{
+			sem_post(philo->meals_count_sem);
+			is_sated = TRUE;
+		}
+		usleep(60);
 	}
-	sem_post(info->philos[n]->death_sem);
-	return (0);
+	return (NULL);
 }
 
-int	check_meals(t_info *info, int least)
+void	*check_deaths(void *ptr)
 {
-	if (info->nb_must_eat != -1 && least >= info->nb_must_eat)
-		return (0);
-	return (-1);
+	t_philo	*philo;
+
+	philo = (t_philo *)ptr;
+	sem_wait(philo->alive_sem);
+	philo->is_alive = FALSE;
+	sem_post(philo->alive_sem);
+	return (NULL);
 }
 
-void	check_forks(t_info *info, t_philo *philo)
+void	*kill_philos(t_philo *philo)
 {
-	int		priority;
-	int		i;
-
-	if (philo->meals.need_forks)
-	{
-		i = 0;
-		priority = 0;
-		while (i < info->nb_philo)
-		{
-			if (philo->meals.last_meal < info->philos[i]->meals.last_meal)
-				priority++;
-			i++;
-		}
-		if (info->forks_available > 0
-			&& info->nb_philo - priority >= info->forks_available / 2)
-		{
-			philo->meals.need_forks = FALSE;
-			info->forks_available -= 2;
-		}
-	}
+	print_log("%d died\n", philo);
+	sem_wait(philo->output_sem);
+	sem_post(philo->alive_sem);
+	sem_post(philo->death_sem);
+	ft_msleep(100);
+	sem_post(philo->output_sem);
+	return (NULL);
 }

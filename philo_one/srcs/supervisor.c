@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/13 22:01:40 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/17 10:47:53 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/30 15:53:12 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,9 @@ int	check_deaths(t_info *info, int n)
 	if (last_meal >= info->time_to_die)
 	{
 		print_log("%d died\n", info->philos[n]);
+		pthread_mutex_lock(&info->alive_mutex);
 		info->is_alive = FALSE;
+		pthread_mutex_unlock(&info->alive_mutex);
 		pthread_mutex_unlock(&info->philos[n]->death_mutex);
 		return (-1);
 	}
@@ -75,7 +77,9 @@ int	check_meals(t_info *info, int least)
 {
 	if (info->nb_must_eat != -1 && least >= info->nb_must_eat)
 	{
+		pthread_mutex_lock(&info->alive_mutex);
 		info->is_alive = FALSE;
+		pthread_mutex_unlock(&info->alive_mutex);
 		return (0);
 	}
 	return (-1);

@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/11 01:10:01 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/22 17:09:04 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/29 18:35:58 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,11 @@ int	ft_atoi(const char *nptr)
 void	print_log(char *output, t_philo *philo)
 {
 	sem_wait(philo->output_sem);
-	printf("[%ld] ", get_timestamp(philo->exec_tm));
-	printf(output, philo->nb_philo);
+	if (philo->is_alive)
+	{
+		printf("[%ld] ", get_timestamp(philo->exec_tm));
+		printf(output, philo->nb_philo);
+	}
 	sem_post(philo->output_sem);
 }
 
@@ -71,22 +74,14 @@ void	ft_msleep(int time_to_sleep)
 
 void	free_all(t_info *info, pid_t *childs)
 {
-	int	i;
-
-	i = 0;
-	while (i < info->nb_philo)
-	{
-		sem_close(info->philos[i]->death_sem);
-		sem_unlink(info->philos[i]->death_name);
-		free(info->philos[i]->death_name);
-		free(info->philos[i]);
-		i++;
-	}
 	sem_close(info->forks);
 	sem_unlink(SEM_FORKS_NAME);
 	sem_close(info->output_sem);
 	sem_unlink(SEM_OUTPUT_NAME);
-	free(info->philos);
+	sem_close(info->alive_sem);
+	sem_unlink(SEM_ALIVE_NAME);
+	sem_close(info->meals_count_sem);
+	sem_unlink(SEM_MEALS_NAME);
 	free(info);
 	free(childs);
 }

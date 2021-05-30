@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/10 17:16:27 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/17 01:29:14 by user42           ###   ########.fr       */
+/*   Updated: 2021/05/30 15:49:15 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ typedef struct s_philo
 	pthread_mutex_t	*forks[2];
 	t_bool			*forks_available[2];
 	pthread_mutex_t	*output_mutex;
+	pthread_mutex_t	*alive_mutex;
 	pthread_mutex_t	death_mutex;
 	t_philo_meals	meals;
 	t_bool			*is_alive;
@@ -70,6 +71,7 @@ typedef struct s_info
 	pthread_mutex_t	*forks;
 	t_bool			*forks_available;
 	pthread_mutex_t	output_mutex;
+	pthread_mutex_t	alive_mutex;
 	t_bool			is_alive;
 }	t_info;
 

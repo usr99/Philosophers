@@ -6,7 +6,7 @@
 /*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/13 22:01:40 by mamartin          #+#    #+#             */
-/*   Updated: 2021/05/30 15:53:12 by user42           ###   ########.fr       */
+/*   Updated: 2021/06/02 22:32:44 by user42           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,16 +41,28 @@ void	*supervisor_func(void *ptr_info)
 
 void	check_forks(t_info *info, int philo)
 {
-	int		i;
+	int		next;
+	int		prev;
 
-	i = philo + 1;
+	next = philo + 1;
 	if (philo == info->nb_philo - 1)
-		i = 0;
-	if (info->forks_available[philo] && info->forks_available[i])
+		next = 0;
+	prev = philo - 1;
+	if (philo == 0)
+		prev = info->nb_philo - 1;
+	if (info->forks_available[philo] && info->forks_available[next])
 	{
-		info->philos[philo]->meals.need_forks = FALSE;
-		info->forks_available[philo] = FALSE;
-		info->forks_available[i] = FALSE;
+		if (info->philos[prev]->meals.last_meal
+			>= info->philos[philo]->meals.last_meal)
+		{
+			if (info->philos[next]->meals.last_meal
+				>= info->philos[philo]->meals.last_meal)
+			{
+				info->philos[philo]->meals.need_forks = FALSE;
+				info->forks_available[philo] = FALSE;
+				info->forks_available[next] = FALSE;
+			}			
+		}
 	}
 }
 
